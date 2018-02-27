@@ -1,0 +1,6 @@
+---
+- name: setup tuned profile on fast_nodes
+  hosts:  fast_nodes
+  user: root
+  roles:
+    - tuned-setup

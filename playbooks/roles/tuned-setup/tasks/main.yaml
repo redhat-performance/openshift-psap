@@ -1,0 +1,36 @@
+---
+
+- name: install cpu-partitioning tuned profile package
+  yum: name=tuned-profiles-cpu-partitioning state=latest
+
+- name: write customized cpu-partitioning-variables.conf file
+  template:
+    src: cpu-partitioning-variables.conf.j2
+    dest: /etc/tuned/cpu-partitioning-variables.conf
+
+- name: create psap-demo directory
+  file:
+    path: /etc/tuned/psap-demo
+    state: directory
+    mode: 0755
+
+- name: copy custom psap-demo tuned profile
+  template:
+    src: psap-demo-tuned.conf.j2
+    dest: /etc/tuned/psap-demo/tuned.conf
+
+- name: enable psap-demo profile
+  command: tuned-adm profile psap-demo
+
+- name: reboot nodes to activate the cmdline options
+  shell: sleep 2 && shutdown -r now "psap tuned-setup role"
+  async: 1
+  poll: 0
+
+- name: wait for nodes to finish rebooting
+  local_action: 
+    module: wait_for
+      host={{ inventory_hostname }}
+      port=22
+      delay=1
+      timeout=900

@@ -1,0 +1,14 @@
+---
+
+- name: create a node pool using taints
+  shell: oc adm taint nodes {{ ansible_fqdn }} {{ item }} --overwrite
+  with_items:
+    - shield=fastnode:NoSchedule
+      #    - drain=fastnode:NoExecute
+  delegate_to: "{{ master_hostname }}"
+
+- name: verify node taint was successfully applied
+  shell: oc describe node {{ ansible_fqdn }} | grep fastnode
+  delegate_to: "{{ master_hostname }}"
+  register: fastnode_taint
+  failed_when: fastnode_taint.rc > 0

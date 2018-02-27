@@ -1,0 +1,6 @@
+---
+- name: launch a pod that consumes a single GPU and tolerates a fastnode taint
+  hosts:  master
+  user: root
+  roles:
+    - gpu-pod
