@@ -1,0 +1,2 @@
+- name: create a pod that consumes a GPU and tolerates a fastnode taint
+  shell: oc create -f gpu-pod.yaml

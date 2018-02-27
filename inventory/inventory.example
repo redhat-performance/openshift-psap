@@ -1,0 +1,18 @@
+[all]
+master.example.com
+
+[all:vars]
+master_hostname=
+
+[master]
+master.example.com
+
+[fast_nodes]
+fastnode.example.com
+
+[fast_nodes:vars]
+# List of cores to be isolated
+isolated_cores=2-3
+
+# number of hugepages to be allocated
+nr_hugepages=10
