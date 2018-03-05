@@ -31,8 +31,9 @@ spec:
       limits:
         nvidia.com/gpu: 1
 
-  tolerations:
-  - key: "shield"
-    operator: "Equal"
-    value: "fastnode"
-    effect: "NoSchedule"
+# A toleration is only necessary if the ExtendedResourceToleration admission controller is not enabled in master-config.yaml.
+#  tolerations:
+#  - key: "shield"
+#    operator: "Equal"
+#    value: "fastnode"
+#    effect: "NoSchedule"
