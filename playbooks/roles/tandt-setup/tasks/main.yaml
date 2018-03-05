@@ -3,12 +3,29 @@
 - name: create a node pool using taints
   shell: oc adm taint nodes {{ ansible_fqdn }} {{ item }} --overwrite
   with_items:
-    - shield=fastnode:NoSchedule
-      #    - drain=fastnode:NoExecute
+    - nvidia.com/gpu=value:NoSchedule
   delegate_to: "{{ master_hostname }}"
+  when: inventory_hostname in groups['fast_nodes']
 
 - name: verify node taint was successfully applied
   shell: oc describe node {{ ansible_fqdn }} | grep fastnode
   delegate_to: "{{ master_hostname }}"
   register: fastnode_taint
   failed_when: fastnode_taint.rc > 0
+  when: inventory_hostname in groups['fast_nodes']
+
+- name: enable ExtendedResourceToleration Admission controller # https://kubernetes.io/docs/admin/admission-controllers/#extendedresourcetoleration
+  blockinfile:
+    dest: /etc/origin/master/master-config.yaml
+    backup: yes
+    insertbefore: "BuildDefaults:"
+    block: |
+      ExtendedResourceToleration:
+        configuration:
+          apiVersion: v1
+          kind: ExtendedResourceTolerationConfig
+  when: inventory_hostname in groups['master']
+
+- name: restart master-api to activate ERT admission controller
+  systemd: name=atomic-openshift-master-api state=restarted
+  when: inventory_hostname in groups['master']

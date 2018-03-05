@@ -1,6 +1,6 @@
 ---
 - name: create fastnode node pool using taints
-  hosts:  fast_nodes
+  hosts:  master
   user: root
   roles:
     - tandt-setup
