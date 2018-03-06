@@ -1,0 +1,6 @@
+---
+- name: install node-feature-discovery daemonset
+  hosts:  master
+  user: root
+  roles:
+    - node-feature-discovery-setup

@@ -1,0 +1,41 @@
+---
+- name: copy multiple files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+   - { src: 'create-namespace.yaml',dest: '/tmp/create-namespace.yaml' }
+   - { src: 'rbac.yaml',dest: '/tmp/rbac.yaml' }
+   - { src: 'node-feature-discovery-daemonset.yaml',dest: '/tmp/node-feature-discovery-daemonset.yaml' }
+
+     #- name: copy create-namespace.yaml up to master
+     #  copy:
+     #    src: create-namespace.yaml
+     #    dest: /tmp/create-namespace.yaml
+
+     #- name: copy rbac.yaml up to master
+     #  copy:
+     #    src: rbac.yaml
+     #    dest: /tmp/rbac.yaml
+
+    #- name: copy node-feature-discovery-template.yaml up to master
+    #  copy:
+    #    src: node-feature-discovery-template.yaml
+    #    dest: /tmp/node-feature-discovery-template.yaml
+
+     #- name: copy node-feature-discovery-daemonset.yaml up to master
+     #  copy:
+     #    src: node-feature-discovery-daemonset.yaml
+     #    dest: /tmp/node-feature-discovery-daemonset.yaml
+
+- name: create node-feature-discovery namespace
+  shell: oc create -f /tmp/create-namespace.yaml
+
+- name: create RBAC rules for node-feature-discovery pod
+  shell: oc create -f /tmp/rbac.yaml
+
+  #- name: create node-feature-discovery template ... only use this for jobs
+  #  shell: oc create -f /tmp/node-feature-discovery-template.yaml
+
+- name: create node-feature-discovery daemonset
+  shell: oc create -f /tmp/node-feature-discovery-daemonset.yaml
