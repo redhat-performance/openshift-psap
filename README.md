@@ -1,9 +1,9 @@
 # openshift-psap
 OpenShift Performance-Sensitive Application Platform Artifacts
 
-### Ansible Roles
+## Ansible Roles
 
-#### tuned-setup
+### tuned-setup
 This role will demonstrate use of the tuned tuning profile delivery mechanism to partition your node into two sections; housekeeping and isolated cores.  These cores are de-jittered (as much as possible) from kernel activity and will not run userspace threads unless those threads have their affinity explicitly defined.
 
 The ansible inventory includes several variables use to configure tuned:
@@ -11,10 +11,56 @@ The ansible inventory includes several variables use to configure tuned:
 * ```isolated_cores``` the list of cores to be de-jittered.
 * ```nr_hugepages``` the number of 2Mi hugepages to be allocated.
 
-#### tandt-setup
+### tandt-setup
 This role will demonstrate use of Taints and Tolerations to carve out a "node pool" called fastnode.  Pods without matching tolerations will not be scheduled to this isolated pool.
 
-#### gpu-pod
+### node-feature-discovery-setup
+This role will demonstrate the use of the node-feature-discovery Kubernetes Incubator project to discovery hardware characteristics (such as CPU capabilities) on the node.  node-feature-discovery then labels the nodes for use in scheduling decisions.  This role deploys NFD as a daemonset.  For more information about NFD, see the following [link](https://github.com/kubernetes-incubator/node-feature-discovery)
+
+Here is what the daemonset looks like when deployed:
+
+```
+# oc get ds -n node-feature-discovery
+NAME                     DESIRED   CURRENT   READY     UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+node-feature-discovery   3         3         3         3            3           <none>          5m
+```
+```
+And here are the labels that NFD has added to each node:
+
+# oc describe node ip-172-31-4-25.us-west-2.compute.internal | grep incubator
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-ADX=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-AESNI=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-AVX=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-AVX2=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-BMI1=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-BMI2=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-CLMUL=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-CMOV=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-CX16=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-ERMS=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-F16C=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-FMA3=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-HLE=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-HTT=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-LZCNT=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-MMX=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-MMXEXT=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-NX=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-POPCNT=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-RDRAND=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-RDSEED=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-RDTSCP=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-RTM=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-SSE=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-SSE2=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-SSE3=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-SSE4.1=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-SSE4.2=true
+                    node.alpha.kubernetes-incubator.io/nfd-cpuid-SSSE3=true
+                    node.alpha.kubernetes-incubator.io/node-feature-discovery.version=v0.1.0-40-g58c9f11
+```
+
+### gpu-pod
 This role will create a new pod that leverages Taints and Tolerations to run on the fastnode pool.  It consumes a GPU.  The pod sleeps indefinitely.  To test your GPU pod:
 Also included is a basic Dockerfile that is based on the NVIDIA CUDA 9.1 CentOS7 image and includes the deviceQuery binary used below.
 

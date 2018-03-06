@@ -1,0 +1,23 @@
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: admin-access
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+
+---    
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-access
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: node-feature-discovery
+roleRef:
+  apiVersion: rbac.authorization.k8s.io/v1
+  kind: ClusterRole
+  name: admin-access
