@@ -1,0 +1,6 @@
+---
+- name: cpumanager demo
+  hosts:  fast_nodes
+  user: root
+  roles:
+    - cpumanager-hugepages

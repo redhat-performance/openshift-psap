@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cpumanager-hugepages-pod
+  namespace: cpumanager-hugepages
+spec:
+  containers:
+  - image: jeremyeder/cpumanager-hugepages:latest
+    command: ['./map_hugetlb']
+    name: cpumanager-hugepages
+    volumeMounts:
+    - mountPath: /hugepages
+      name: hugepage
+    resources:
+      requests:
+        cpu: {{ exclusive_cores }}
+        memory: "{{ memory}}"
+      limits:
+        cpu: {{ exclusive_cores }}
+        memory: "{{ memory }}"
+        hugepages-2Mi: 100Mi
+  volumes:
+  - name: hugepage
+    emptyDir:
+      medium: HugePages
+
+# using a nodeselector here is more precise than taints and tolerations.
+  nodeSelector:
+    cpumanager: "true"
+
+# The gpu-pod example does not need a toleration because of the ExtendedResourceToleration controller.
+# This cpumanager-hugepages pod does not use ExtendedResources, so it needs a toleration.
+  tolerations:
+  - key: "shield"
+    operator: "Equal"
+    value: "fastnode"
+    effect: "NoSchedule"
