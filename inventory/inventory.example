@@ -14,5 +14,11 @@ fastnode.example.com
 # List of cores to be isolated
 isolated_cores=2-3
 
-# number of hugepages to be allocated
-nr_hugepages=10
+# Number of whole cores to reserve exclusively for the cpumanager pod.
+exclusive_cores=2
+
+# Amount of memory to set in requests/limits for the cpumanager pod.
+memory=2G
+
+# number of hugepages to be allocated on the host
+nr_hugepages=100
