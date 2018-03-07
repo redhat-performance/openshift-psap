@@ -60,6 +60,15 @@ And here are the labels that NFD has added to each node:
                     node.alpha.kubernetes-incubator.io/node-feature-discovery.version=v0.1.0-40-g58c9f11
 ```
 
+### cpumanager-hugepages
+This role will creates a pod that runs on the de-jittered cores created by the tuned profile.
+
+* It uses taints and tolerations to steer the pods towards a node in the fastnode pool.
+* It enables the CPUManager feature gate in the kubelet.
+* It enables the HugePages feature gate in the kubelet and the apiserver.
+* It deploys a pod that consumes 2 exclusive cores, 2GB of regular memory and (100) 2Mi HugePages.
+* It then runs map_hugetlb application to actually consume the HugePages.
+
 ### gpu-pod
 This role will create a new pod that leverages Taints and Tolerations to run on the fastnode pool.  It consumes a GPU.  The pod sleeps indefinitely.  To test your GPU pod:
 Also included is a basic Dockerfile that is based on the NVIDIA CUDA 9.1 CentOS7 image and includes the deviceQuery binary used below.

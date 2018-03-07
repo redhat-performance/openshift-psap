@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cpumanager-hugepages
+  annotations:
+    openshift.io/node-selector: ""
+name: cpumanager-hugepages
