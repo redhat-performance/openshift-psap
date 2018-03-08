@@ -1,0 +1,6 @@
+---
+- name: sysctl demo
+  hosts:  fast_nodes
+  user: root
+  roles:
+    - sysctls

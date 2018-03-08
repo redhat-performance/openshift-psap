@@ -69,6 +69,14 @@ This role will creates a pod that runs on the de-jittered cores created by the t
 * It deploys a pod that consumes 2 exclusive cores, 2GB of regular memory and (100) 2Mi HugePages.
 * It then runs map_hugetlb application to actually consume the HugePages.
 
+### sysctl
+This role will create a pod that uses both safe and unsafe sysctls.  Unsafe sysctls are those known to not be namespaced in the kernel, thus their usage in containerized environments may affect other containers on the same host.
+
+* It uses taints and toleration to steer the pods towards a node in the fastnode pool.
+* "Safe" sysctls are enabled by default.
+* "Unsafe" sysctls are enabled by enabling experimental unsafe-sysctls support in the kubelet.
+* It launches a pod that changes both safe and unsafe sysctls and verifies that those values were updated correctly.
+
 ### gpu-pod
 This role will create a new pod that leverages Taints and Tolerations to run on the fastnode pool.  It consumes a GPU.  The pod sleeps indefinitely.  To test your GPU pod:
 Also included is a basic Dockerfile that is based on the NVIDIA CUDA 9.1 CentOS7 image and includes the deviceQuery binary used below.

@@ -1,0 +1,35 @@
+---
+
+- name: enable unsafe sysctls
+  blockinfile:
+    dest: /etc/origin/node/node-config.yaml
+    backup: yes
+    state: present
+    insertafter: "DevicePlugins=true"
+    block: |2
+        experimental-allowed-unsafe-sysctls:
+        - "vm.*,kernel.*,fs.*,net.*"
+  when: inventory_hostname in groups['fast_nodes']
+
+- name: restart atomic-openshift-node service to activate unsafe sysctls
+  systemd: name=atomic-openshift-node state=restarted
+
+- name: write customized sysctl.yaml file
+  template:
+    src: sysctl.yaml.j2
+    dest: /tmp/sysctl.yaml
+  delegate_to: "{{ master_hostname }}"
+
+- name: copy create-sysctl-namespace.yaml up to master
+  copy:
+    src: create-sysctl-namespace.yaml
+    dest: /tmp/create-sysctl-namespace.yaml
+  delegate_to: "{{ master_hostname }}"
+
+- name: create sysctl namespace
+  shell: oc create -f /tmp/create-sysctl-namespace.yaml
+  delegate_to: "{{ master_hostname }}"
+
+- name: create sysctl pod
+  shell: oc create -f /tmp/sysctl.yaml
+  delegate_to: "{{ master_hostname }}"
