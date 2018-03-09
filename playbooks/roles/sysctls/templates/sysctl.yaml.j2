@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sysctl-pod
+  namespace: sysctl
+  annotations:
+    security.alpha.kubernetes.io/sysctls: kernel.shm_rmid_forced=1
+    security.alpha.kubernetes.io/unsafe-sysctls: net.core.somaxconn=10000,kernel.shmmni=8192
+spec:
+  containers:
+  - image: jeremyeder/cpumanager-hugepages:latest
+    command: ['sleep']
+    args: ['infinity']
+    name: sysctl
+
+# The gpu-pod example does not need a toleration because of the ExtendedResourceToleration controller.
+# This sysctl pod does not use ExtendedResources, so it needs a toleration.
+  tolerations:
+  - key: "shield"
+    operator: "Equal"
+    value: "fastnode"
+    effect: "NoSchedule"

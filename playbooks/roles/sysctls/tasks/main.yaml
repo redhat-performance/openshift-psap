@@ -1,0 +1,49 @@
+---
+
+- name: enable unsafe sysctls
+  blockinfile:
+    dest: /etc/origin/node/node-config.yaml
+    backup: yes
+    state: present
+    insertafter: "DevicePlugins=true"
+    block: |2
+        experimental-allowed-unsafe-sysctls:
+        - "kernel.sem*,kernel.shm*,kernel.msg*,fs.mqueue.*,net.core.somaxconn"
+  when: inventory_hostname in groups['fast_nodes']
+
+- name: restart atomic-openshift-node service to activate unsafe sysctls
+  systemd: name=atomic-openshift-node state=restarted
+
+# TODO:  I need to make something like this work.
+#- name: wait for node to re-register with master as ready.
+#  shell: "oc get nodes {{ fast_node }}"
+#  register: nodes
+#  until:
+#    - '" Ready " in nodes.stdout'
+#  retries: 15
+#  delay: 2
+#  delegate_to: "{{ master_hostname }}"
+
+# Until then, it usually takes about 10 seconds for the kubelet to restart and re-register itself with the master so that it is schedulable.
+- name: sleep
+  shell: "sleep 30"
+
+- name: write customized sysctl.yaml file
+  template:
+    src: sysctl.yaml.j2
+    dest: /tmp/sysctl.yaml
+  delegate_to: "{{ master_hostname }}"
+
+- name: copy create-sysctl-namespace.yaml up to master
+  copy:
+    src: create-sysctl-namespace.yaml
+    dest: /tmp/create-sysctl-namespace.yaml
+  delegate_to: "{{ master_hostname }}"
+
+- name: create sysctl namespace
+  shell: oc create -f /tmp/create-sysctl-namespace.yaml
+  delegate_to: "{{ master_hostname }}"
+
+- name: create sysctl pod
+  shell: oc create -f /tmp/sysctl.yaml
+  delegate_to: "{{ master_hostname }}"
