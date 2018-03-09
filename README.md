@@ -77,6 +77,13 @@ This role will create a pod that uses both safe and unsafe sysctls.  Unsafe sysc
 * "Unsafe" sysctls are enabled by enabling experimental unsafe-sysctls support in the kubelet.
 * It launches a pod that changes both safe and unsafe sysctls and verifies that those values were updated correctly.
 
+```
+# oc exec -it sysctl-pod sysctl kernel.shm_rmid_forced net.core.somaxconn kernel.shmmni
+kernel.shm_rmid_forced = 1 # This sysctl is in the "safe" whitelist.  default is 0.
+net.core.somaxconn = 10000 # This sysctl (all of net.*) is in the "unsafe" list.  default is 128.
+kernel.shmmni = 8192 # This sysctl is also in the "unsafe" list.  default is 4096.
+```
+
 ### gpu-pod
 This role will create a new pod that leverages Taints and Tolerations to run on the fastnode pool.  It consumes a GPU.  The pod sleeps indefinitely.  To test your GPU pod:
 Also included is a basic Dockerfile that is based on the NVIDIA CUDA 9.1 CentOS7 image and includes the deviceQuery binary used below.

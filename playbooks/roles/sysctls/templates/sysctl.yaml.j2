@@ -5,7 +5,7 @@ metadata:
   namespace: sysctl
   annotations:
     security.alpha.kubernetes.io/sysctls: kernel.shm_rmid_forced=1
-    security.alpha.kubernetes.io/unsafe-sysctls: vm.swappiness=1,vm.dirty_background_ratio=3
+    security.alpha.kubernetes.io/unsafe-sysctls: net.core.somaxconn=10000,kernel.shmmni=8192
 spec:
   containers:
   - image: jeremyeder/cpumanager-hugepages:latest
