@@ -30,3 +30,10 @@ spec:
         name: node-feature-discovery
         securityContext:
           privileged: true
+        volumeMounts:
+          - name: host-sys
+            mountPath: /host-sys 
+      volumes:
+        - name: host-sys
+          hostPath:
+            path: /sys
