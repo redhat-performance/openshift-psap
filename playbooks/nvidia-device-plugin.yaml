@@ -1,0 +1,6 @@
+---
+- name: deploy NVIDIA device-plugin daemonset
+  hosts:  master
+  user: root
+  roles:
+    - nvidia-device-plugin
