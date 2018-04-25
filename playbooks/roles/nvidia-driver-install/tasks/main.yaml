@@ -1,0 +1,25 @@
+---
+
+- name: install kernel-devel
+  yum: name=kernel-devel-`uname -r` state=present
+
+- name: install EPEL
+  yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
+
+- name: install NVIDIA repo
+  yum: name=https://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-repo-rhel7-9.1.85-1.x86_64.rpm state=present
+
+- name: install NVIDIA drivers
+  yum:  name={{item}} state=present
+  with_items:
+   - xorg-x11-drv-nvidia
+   - xorg-x11-drv-nvidia-devel
+
+- name: remove nouveau
+  modprobe: name=nouveau state=absent
+
+- name: load NVIDIA and unified memory kernel modules
+  shell: nvidia-modprobe && nvidia-modprobe -u
+
+- name: test drivers
+  shell: nvidia-smi --query-gpu=gpu_name --format=csv,noheader --id=0
