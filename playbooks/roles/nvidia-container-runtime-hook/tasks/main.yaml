@@ -1,0 +1,30 @@
+---
+- name: install NVIDIA repo for container runtime hook
+  shell: yum-config-manager --add-repo=https://nvidia.github.io/nvidia-container-runtime/centos7/x86_64/nvidia-container-runtime.repo
+
+- name: install nvidia-container-runtime-hook
+  yum: name=nvidia-container-runtime-hook state=latest
+
+- name: copy oci-nvidia-hook up to fast_nodes
+  copy:
+    src: oci-nvidia-hook
+    dest: /usr/libexec/oci/hooks.d/oci-nvidia-hook
+    mode: 0755
+
+- name: add SELinux type to nvidia device files
+  sefcontext:
+    target: '/dev/nvidia.*'
+    setype: container_file_t
+    state: present
+
+- name: update SELinux type on nvidia device files
+  shell: restorecon -v /dev/nvidia*
+
+# # ls -alZ /dev/nvidia*                                        
+# crw-rw-rw-. root root unconfined_u:object_r:xserver_misc_device_t:s0 /dev/nvidia0     
+# crw-rw-rw-. root root unconfined_u:object_r:xserver_misc_device_t:s0 /dev/nvidiactl   
+# crw-rw-rw-. root root unconfined_u:object_r:device_t:s0 /dev/nvidia-uvm               
+# crw-rw-rw-. root root unconfined_u:object_r:device_t:s0 /dev/nvidia-uvm-tools         
+
+- name: e2e test nvidia-container-runtime-hook integration
+  shell: docker run -i --rm docker.io/mirrorgooglecontainers/cuda-vector-add:v0.1
