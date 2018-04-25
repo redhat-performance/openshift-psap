@@ -19,7 +19,7 @@
     dest: /etc/origin/master/master-config.yaml
     backup: yes
     insertbefore: "BuildDefaults:"
-    block: |
+    block: |4
       ExtendedResourceToleration:
         configuration:
           apiVersion: v1
