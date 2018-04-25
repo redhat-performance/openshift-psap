@@ -84,6 +84,9 @@ net.core.somaxconn = 10000 # This sysctl (all of net.*) is in the "unsafe" list.
 kernel.shmmni = 8192 # This sysctl is also in the "unsafe" list.  default is 4096.
 ```
 
+### nvidia-driver-install
+This role will install 3rd party NVIDIA drivers.  Driver installation requires that the user accept NVIDIA's license.  Presence of NVIDIA drivers is a prerequisite to using GPUs in Kubernetes/OpenShift.
+
 ### gpu-pod
 This role will create a new pod that leverages Taints and Tolerations to run on the fastnode pool.  It consumes a GPU.  The pod sleeps indefinitely.  To test your GPU pod:
 Also included is a basic Dockerfile that is based on the NVIDIA CUDA 9.1 CentOS7 image and includes the deviceQuery binary used below.

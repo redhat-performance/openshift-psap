@@ -1,0 +1,6 @@
+---
+- name: install nvidia driver on fast_nodes
+  hosts:  fast_nodes
+  user: root
+  roles:
+    - nvidia-driver-install
