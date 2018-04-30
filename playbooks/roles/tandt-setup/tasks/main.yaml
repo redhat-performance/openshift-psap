@@ -19,7 +19,7 @@
     dest: /etc/origin/master/master-config.yaml
     backup: yes
     insertbefore: "BuildDefaults:"
-    block: |4
+    block: |
       ExtendedResourceToleration:
         configuration:
           apiVersion: v1
@@ -27,5 +27,6 @@
   when: inventory_hostname in groups['master']
 
 - name: restart master-api to activate ERT admission controller
-  systemd: name=atomic-openshift-master-api state=restarted
+  shell: master-restart controllers controllers && master-restart api api
+  #  systemd: name=atomic-openshift-master-api state=restarted
   when: inventory_hostname in groups['master']
