@@ -17,6 +17,9 @@
     setype: container_file_t
     state: present
 
+- name: sleeping for a few seconds as there seems to be a race here.
+  shell: sleep 5
+
 - name: update SELinux type on nvidia device files
   shell: restorecon -v /dev/nvidia*
 
