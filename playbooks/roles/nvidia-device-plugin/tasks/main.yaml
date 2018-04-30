@@ -7,12 +7,26 @@
 
 - name: create nvidia namespace
   shell: oc create -f /tmp/create-nvidia-namespace.yaml
-  delegate_to: "{{ master_hostname }}"
+
+- name: create serviceaccount for nvidia deviceplugin
+  shell: oc create serviceaccount -n nvidia nvidia-deviceplugin
 
 - name: copy device-plugin yaml for use by oc
   copy:
     src: nvidia-device-plugin-centos.yml
     dest: /tmp/nvidia-device-plugin-centos.yml
+ 
+- name: copy scc yaml up to master
+  copy:
+    src: nvidia-deviceplugin-scc.yaml
+    dest: /tmp/nvidia-deviceplugin-scc.yaml
+
+- name: load nvidia device plugin scc
+  shell: oc create -f /tmp/nvidia-deviceplugin-scc.yaml
+
+- name: label fast_nodes with nvidia gpu=true
+  shell: oc label node {{ hostvars[item].inventory_hostname }} nvidia.com/gpu=true --overwrite
+  with_items: '{{groups.fast_nodes}}'
 
 - name: install the NVIDIA kubernetes device-plugin (CentOS base image)
   shell:  oc create -f /tmp/nvidia-device-plugin-centos.yml
