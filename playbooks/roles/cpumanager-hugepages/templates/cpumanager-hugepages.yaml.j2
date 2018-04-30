@@ -31,7 +31,7 @@ spec:
 # The gpu-pod example does not need a toleration because of the ExtendedResourceToleration controller.
 # This cpumanager-hugepages pod does not use ExtendedResources, so it needs a toleration.
   tolerations:
-  - key: "shield"
+  - key: "nvidia.com/gpu"
     operator: "Equal"
-    value: "fastnode"
+    value: "value"
     effect: "NoSchedule"
