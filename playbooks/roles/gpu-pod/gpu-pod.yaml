@@ -4,6 +4,7 @@ kind: Pod
 
 metadata:
   name: gpu-pod
+  namespace: nvidia
 
 spec:
   restartPolicy: OnFailure
@@ -31,9 +32,8 @@ spec:
       limits:
         nvidia.com/gpu: 1
 
-# A toleration is only necessary if the ExtendedResourceToleration admission controller is not enabled in master-config.yaml.
-#  tolerations:
-#  - key: "shield"
-#    operator: "Equal"
-#    value: "fastnode"
-#    effect: "NoSchedule"
+  tolerations:                        
+    - key: "nvidia.com/gpu"           
+      operator: "Equal"               
+      value: "value"                  
+      effect: "NoSchedule"
