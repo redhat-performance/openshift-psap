@@ -1,7 +1,7 @@
 ---
 
 - name: install kernel-devel
-  yum: name=kernel-devel-`uname -r` state=present
+  yum: name=kernel-devel-{{ ansible_kernel }} state=present
 
 - name: install EPEL
   yum: name=https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm state=present
