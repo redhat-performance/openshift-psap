@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: caffe2
+  namespace: nvidia
+spec:
+  ports:
+  - port: 80
+    targetPort: 8888
+  selector:
+    app: caffe2
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: caffe2 
+  namespace: nvidia 
+  labels:
+    app: caffe2
+spec:
+#  hostNetwork: true
+  containers:
+    - name: caffe2
+      image: "caffe2ai/caffe2"
+      command: ["jupyter"] 
+      args: ["notebook", "--allow-root", "--ip=0.0.0.0", "--no-browser"]
+      ports:
+      - containerPort: 8888
+      securityContext:
+        privileged: true
+      resources:
+        limits:
+          nvidia.com/gpu: 2 # requesting 2 GPU
+  tolerations:                              
+  - key: "nvidia.com/gpu"                 
+    operator: "Equal"                     
+    value: "value"                        
+    effect: "NoSchedule"
