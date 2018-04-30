@@ -1,5 +1,5 @@
 ---
-- name: install nvidia-container-runtime-hook on fast_nodes
+- name: install nvidia-container-runtime-hook
   hosts:  fast_nodes
   user: root
   roles:
