@@ -141,23 +141,15 @@ Result = PASS
 
 The gpu-pod role also includes a caffe2 Multi-GPU jupyter notebook demo.  Deploy the caffe2 environment like so:
 
+```ansible-playbook -i inventory/inv playbooks/gpu-pod.yaml```
+
+To access the jupyter webserver run the ```get_url.sh`` script on the master.
+
 ```
-oc create -f playbooks/roles/gpu-pod/caffe2.yaml
-watch oc get all -n nvidia
+playbooks/gpu-pod/get_url.sh
 ```
 
-
-Once the deployment is complete (the caffe2 pod is running), you need to expose the service.
-```
-oc expose -n nvidia service/caffe2 
-```
-
-Now get the route and jupyter authentication token:
-```
-oc get routes -n nvidia
-oc logs -n nvidia pod/caffe2
-```
-```
+get_url.sh will output a route and token.
 
 Use the token to authenticate to route:
 http://<route>/notebooks/caffe2/caffe2/python/tutorials/Multi-GPU_Training.ipynb?token=<token>
