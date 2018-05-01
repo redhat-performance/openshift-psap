@@ -1,2 +1,26 @@
+- name: copy artifacts up
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+   - { src: 'gpu-pod.yaml',dest: '/tmp/gpu-pod.yaml' }
+   - { src: 'caffe2.yaml',dest: '/tmp/caffe2.yaml' }
+   - { src: 'get_url.sh',dest: '/tmp/get_url.sh' }
+
 - name: create a pod that consumes a GPU and tolerates a fastnode taint
-  shell: oc create -f gpu-pod.yaml
+  shell: oc create -f /tmp/gpu-pod.yaml
+
+- name: create caffe2 demo pod
+  shell: oc create -f /tmp/caffe2.yaml
+
+- name: wait for jupyter service to become accessible
+  shell: sleep 15
+
+  #- name: wait_for jupyter service to become accessible
+  #  wait_for:
+  #    port: 80
+  #   delay: 10
+  #  host: 
+
+- name: get jupyter URL
+  shell: sh /tmp/get_url.sh

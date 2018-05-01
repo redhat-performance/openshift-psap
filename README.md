@@ -91,7 +91,6 @@ This role will install 3rd party NVIDIA drivers.  Driver installation requires t
 This role will create a new pod that leverages Taints and Tolerations to run on the fastnode pool.  It consumes a GPU.  The pod sleeps indefinitely.  To test your GPU pod:
 Also included is a basic Dockerfile that is based on the NVIDIA CUDA 9.1 CentOS7 image and includes the deviceQuery binary used below.
 
-
 Run the deviceQuery command.  This demonstrates that the process in the pod has access to the GPU hardware.  If it did not, the Result at the bottom would indicate FAIL.
 ```
 # oc rsh gpu-pod /usr/local/cuda-9.1/samples/1_Utilities/deviceQuery/deviceQuery
@@ -140,3 +139,25 @@ deviceQuery, CUDA Driver = CUDART, CUDA Driver Version = 9.1, CUDA Runtime Versi
 Result = PASS
 ```
 
+The gpu-pod role also includes a caffe2 Multi-GPU jupyter notebook demo.  Deploy the caffe2 environment like so:
+
+```
+oc create -f playbooks/roles/gpu-pod/caffe2.yaml
+watch oc get all -n nvidia
+```
+
+
+Once the deployment is complete (the caffe2 pod is running), you need to expose the service.
+```
+oc expose -n nvidia service/caffe2 
+```
+
+Now get the route and jupyter authentication token:
+```
+oc get routes -n nvidia
+oc logs -n nvidia pod/caffe2
+```
+```
+
+Use the token to authenticate to route:
+http://<route>/notebooks/caffe2/caffe2/python/tutorials/Multi-GPU_Training.ipynb?token=<token>
