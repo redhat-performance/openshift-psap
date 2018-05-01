@@ -7,20 +7,22 @@
    - { src: 'caffe2.yaml',dest: '/tmp/caffe2.yaml' }
    - { src: 'get_url.sh',dest: '/tmp/get_url.sh' }
 
-- name: create a pod that consumes a GPU and tolerates a fastnode taint
-  shell: oc create -f /tmp/gpu-pod.yaml
+# this pod consumes a single gpu and runs a smoketest.
+#- name: create a pod that consumes a GPU and tolerates a fastnode taint
+#  shell: oc create -f /tmp/gpu-pod.yaml
+
+- name: pull caffe2 image
+  shell: docker pull caffe2ai/caffe2
+  when: inventory_hostname in groups['fast_nodes']
 
 - name: create caffe2 demo pod
   shell: oc create -f /tmp/caffe2.yaml
 
-- name: wait for jupyter service to become accessible
+- name: wait for caffe2 service to show up
   shell: sleep 15
 
-  #- name: wait_for jupyter service to become accessible
-  #  wait_for:
-  #    port: 80
-  #   delay: 10
-  #  host: 
+- name: create a route for the caffe2 jupyter service
+  shell: oc expose -n nvidia service/caffe2
 
-- name: get jupyter URL
-  shell: sh /tmp/get_url.sh
+- name: wait for jupyter service to become accessible
+  shell: sleep 15
