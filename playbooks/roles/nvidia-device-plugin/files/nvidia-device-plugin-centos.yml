@@ -22,7 +22,7 @@ spec:
       hostNetwork: true
       hostPID: true
       containers:
-      - image: nvidia/k8s-device-plugin:1.10-centos7
+      - image: nvidia/k8s-device-plugin:1.9-centos7
         name: nvidia-device-plugin-ctr
         securityContext:
           privileged: true

@@ -28,5 +28,16 @@
   shell: oc label node {{ hostvars[item].inventory_hostname }} nvidia.com/gpu=true --overwrite
   with_items: '{{groups.fast_nodes}}'
 
+- name: enable DevicePlugins feature-gate (only necessary in 1.8 and 1.9)
+  blockinfile:
+    dest: /etc/origin/node/node-config.yaml
+    backup: yes
+    state: present
+    insertafter: "kubeletArguments:
+    block: |2
+        feature-gates:
+        - DevicePlugins=true
+  when: inventory_hostname in groups['fast_nodes']
+
 - name: install the NVIDIA kubernetes device-plugin (CentOS base image)
   shell:  oc create -f /tmp/nvidia-device-plugin-centos.yml

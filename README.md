@@ -11,6 +11,8 @@ OpenShift Performance-Sensitive Application Platform Artifacts
 
 ### nvidia-driver-install
 This role will pull down the latest 3rd party NVIDIA driver and install it.
+After editing the inventory file, run:
+```ansible-playbook -i ./inventory/inventory ./playbooks/nvidia-driver-install.yaml```
 
 ### nvidia-container-runtime-hook
 This role will install the nvidia-container-runtime-hook which is used to mount libraries from the host into a pod whose dockerfile has certain environment variables.

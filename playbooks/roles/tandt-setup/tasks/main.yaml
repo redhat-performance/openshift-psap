@@ -27,6 +27,5 @@
   when: inventory_hostname in groups['master']
 
 - name: restart master-api to activate ERT admission controller
-  shell: master-restart controllers controllers && master-restart api api
-  #  systemd: name=atomic-openshift-master-api state=restarted
+  systemd: name=atomic-openshift-master-api state=restarted
   when: inventory_hostname in groups['master']

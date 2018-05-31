@@ -11,17 +11,8 @@
     dest: /usr/libexec/oci/hooks.d/oci-nvidia-hook
     mode: 0755
 
-- name: add SELinux type to nvidia device files
-  sefcontext:
-    target: '/dev/nvidia.*'
-    setype: container_file_t
-    state: present
-
 - name: sleeping for a few seconds as there seems to be a race here.
   shell: sleep 5
-
-- name: update SELinux type on nvidia device files
-  shell: restorecon -v /dev/nvidia*
 
 # # ls -alZ /dev/nvidia*                                        
 # crw-rw-rw-. root root unconfined_u:object_r:xserver_misc_device_t:s0 /dev/nvidia0     
@@ -31,3 +22,11 @@
 
 - name: e2e test nvidia-container-runtime-hook integration
   shell: docker run -i --rm docker.io/mirrorgooglecontainers/cuda-vector-add:v0.1
+  ignore_errors: true
+
+- name: update SELinux type on nvidia device files
+    shell: chcon -t container_file_t /dev/nvidia*
+
+- name: e2e test nvidia-container-runtime-hook integration
+    shell: docker run -i --rm docker.io/mirrorgooglecontainers/cuda-vector-add:v0.1
+      ignore_errors: true
