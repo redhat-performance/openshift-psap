@@ -1,0 +1,75 @@
+---
+- name: get svt repo
+  git:
+    repo: https://{{ github_token }}@{{ svt_repo }}
+    dest: "{{ svt_dest }}"
+
+- name: prepare for building rpms
+  yum:
+    name: "{{ item }}"
+  with_items:
+    "{{ rpms_to_install }}"
+
+- name: create rpmbuild dir structure
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    "{{ rpmbuild_directories }}"
+
+- name: create rpmmacros
+  shell: echo '%_topdir %(echo $HOME)/rpmbuild' > /root/.rpmmacros
+  args:
+    creates: /root/rpmmacros
+
+- name: get sfnettest
+  get_url:
+    url:  "{{ onload_url }}/sfnettest/{{ sfnettest_version }}"
+    dest: "{{ rpmbuild_sources }}/{{ sfnettest_version }}"
+
+- name: get sysjitter
+  get_url:
+    url: "{{ onload_url }}/sysjitter/{{ sysjitter_version }}"
+    dest: "{{ rpmbuild_sources }}/{{ sysjitter_version }}"
+
+- name: get openonload
+  copy:
+    remote_src: true
+    src:  "{{ solarflare_pkg_prefix }}/{{ openonload_zip }}"
+    dest: "{{ rpmbuild_sources }}/{{ openonload_zip }}"
+
+- name: extract openonload
+  unarchive:
+    src:  "{{ rpmbuild_sources }}/{{ openonload_zip }}"
+    dest: "{{ rpmbuild_sources }}"
+    remote_src: yes
+
+
+- name: create srpm of openonload
+  shell: /usr/bin/rpmbuild -ts "{{ rpmbuild_sources }}/{{ openonload_tgz }}"
+  args:
+     creates: "{{ rpmbuild_srpms }}/{{ onload_srpm }}"
+
+- name: install dependencies prior to building
+  shell: yum-builddep -y "{{ rpmbuild_srpms }}/{{ onload_srpm }}"
+
+- name: get the correct kernel-devel version from running kernel
+  shell: echo kernel-devel-`uname -r`
+  register: kernel_version
+
+- name: try to install the same kernel-devel version as running kernel
+  yum:
+    name: "{{ kernel_version.stdout }}"
+
+- name: create rpm of openonload
+  shell: |
+    /usr/bin/rpmbuild -vv --rebuild "{{ rpmbuild_srpms }}/{{ onload_srpm }}"  > /tmp/rpm.log 2>&1
+  args:
+    creates:
+      "{{ onload_rpms }}"
+
+- name: install rpm of openonload
+  yum:
+    name: "{{ rpmbuild_rpms }}/x86_64/{{ item }}"
+    state: present
+  with_items: "{{ onload_rpms }}"

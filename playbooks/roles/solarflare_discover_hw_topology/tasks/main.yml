@@ -1,0 +1,75 @@
+---
+- name: discover solarflare adapter
+  script: find_pci_vendor_class.sh "{{ pci_vendor }}" "{{ pci_class }}" "{{ out_file_vendor_class }}"
+  args:
+    creates: "{{ out_file_vendor_class }}"
+
+- name: install lshw, numactl
+  yum:
+    name: "{{ item }}"
+  with_items:
+    - lshw
+    - numactl
+
+- name: get interface name from pci bus id
+  shell: |
+    for i in `cat {{ out_file_vendor_class  }}`
+    do
+        lshw -c network -businfo | grep $i | awk '{ print $2 }' >> "{{ out_file_sfc_ifcs }}"
+    done
+  args:
+    creates: "{{ out_file_sfc_ifcs }}"
+
+- name: get test interfaces
+  shell: |
+    for i in `cat {{ out_file_sfc_ifcs }}`
+    do
+        ifconfig $i up
+        if [ `cat /sys/class/net/$i/carrier` == 1 ]; then
+            echo $i > {{ out_file_sfc_test_ifcs }}
+        fi
+    done
+  args:
+    creates: "{{ out_file_sfc_test_ifcs }}"
+
+- name: get first active interface for benchmark
+  shell: cat "{{ out_file_sfc_test_ifcs }}" | head -n1
+  register: test_interface
+
+- name: get test interface numa node
+  shell: |
+    TEST_INTERFACE=`cat {{ out_file_sfc_test_ifcs }} | head -n1`
+    cat /sys/class/net/${TEST_INTERFACE}/device/numa_node
+  register: local_numa_node
+
+- name: get test interface numa node cpus
+  shell: |
+    NUMA_NODE_SELECTOR="node {{ local_numa_node.stdout }}"
+    ISOLCPUS=`numactl -H | grep "${NUMA_NODE_SELECTOR}" | grep "cpus" | cut -d":" -f2  `
+    echo $ISOLCPUS | tr ' ' ',' > "{{ out_file_isolcpus }}"
+  args:
+    creates: "{{ out_file_isolcpus }}"
+
+- name: register isolcpus
+  shell: cat "{{ out_file_isolcpus }}"
+  register: isolcpus
+
+- name: register first local housekeeping core
+  shell: |
+    IFS=',' read -r -a  array <<< `cat "{{ out_file_isolcpus }}"`
+    echo "${array[0]}"
+  register: local_housekeeping_core_0
+
+- name: register second local housekeeping core
+  shell: |
+    IFS=',' read -r -a  array <<< `cat "{{ out_file_isolcpus }}"`
+    echo "${array[1]}"
+  register: local_housekeeping_core_1
+
+- name: set node facts
+  set_fact:
+    tuned_isolcpus:                  "{{ isolcpus.stdout }}"
+    tuned_test_interface:            "{{ test_interface.stdout }}"
+    tuned_local_numa_node:           "{{ local_numa_node.stdout }}"
+    tuned_local_housekeeping_core_0: "{{ local_housekeeping_core_0.stdout }}"
+    tuned_local_housekeeping_core_1: "{{ local_housekeeping_core_1.stdout }}"

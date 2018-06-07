@@ -1,0 +1,11 @@
+---
+pci_vendor: 0x1924
+pci_class:  0x020000
+
+
+tmp_file_prefix: /tmp/ansible-stac-n.
+
+out_file_vendor_class:  "{{ tmp_file_prefix }}{{ pci_vendor }}.{{ pci_class }}.txt"
+out_file_sfc_ifcs:      "{{ tmp_file_prefix }}sfc.ifcs.txt"
+out_file_sfc_test_ifcs: "{{ tmp_file_prefix }}sfc.test.ifcs.txt"
+out_file_isolcpus:      "{{ tmp_file_prefix }}isolcpus.txt"

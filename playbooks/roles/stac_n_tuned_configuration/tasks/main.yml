@@ -1,0 +1,47 @@
+---
+- name: install perf monitoring tools
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - powertop
+    - tuned-utils-systemtap
+    - kernel-debug
+    - hwloc
+
+- name: install cpu partitioning tuned profile
+  yum:
+    name: tuned-profiles-cpu-partitioning
+
+- name: create tuned isolcpus template
+  template:
+    src: cpu-partitioning-variables.conf
+    dest: /etc/tuned/cpu-partitioning-variables.conf
+
+- name: create new tuned profile, check for directory
+  file:
+    path: /usr/lib/tuned/stac-n
+    state: directory
+
+- name: create new tuned profile, create tuned.conf
+  blockinfile:
+    path: /usr/lib/tuned/stac-n/tuned.conf
+    block: |
+      [main]
+      summary=Optimize for STAC-N benchmark
+      include=cpu-partitioning
+
+      [bootloader]
+      #cmdline=intel_idle.max_cstate=0 processor.max_cstate=0 idle=poll iommu=off intel_iommu=off mce=ignore_ce nmi_watchdog=0 audit=0 pcie_aspm=performance ipmi_si.force_kipmi=0 hpet=disabled noht nohalt
+
+      [script]
+      script=${i:PROFILE_DIR}/script.sh
+    create: yes
+
+- name: create new tuned profile, create script.sh
+  template:
+    src: script.sh
+    dest: /usr/lib/tuned/stac-n/script.sh
+
+#- name: activate tuned stac-n profile
+#  command: tuned-adm profile stac-n
