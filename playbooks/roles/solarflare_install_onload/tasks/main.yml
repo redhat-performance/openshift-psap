@@ -102,3 +102,19 @@
     dest: /usr/bin/
     mode: 0755
     remote_src: yes
+
+- name: get sfutils (get_url not working)
+  shell: curl {{ sfutils_url }} --output {{ rpmbuild_sources }}/{{ sfutils_zip }}
+  args:
+    creates: "{{ rpmbuild_sources }}/{{ sfutils_zip }}"
+
+- name: unpack sfutils
+  unarchive:
+    src:  "{{ rpmbuild_sources }}/{{ sfutils_zip }}"
+    dest: "{{ rpmbuild_rpms }}"
+    remote_src: yes
+
+- name: install sfutils
+  yum:
+    name: "{{ rpmbuild_rpms }}/{{ sfutils_rpm }}"
+    state: present
