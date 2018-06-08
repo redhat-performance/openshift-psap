@@ -23,6 +23,11 @@
     path: /usr/lib/tuned/stac-n
     state: directory
 
+- name: generate bitmask from housekeeping core
+  shell:
+    echo "ibase=10; obase=16; 2^({{ tuned_local_housekeeping_core_1 }})" | bc
+  register: onload_cp_cpu
+
 - name: create new tuned profile, create tuned.conf
   blockinfile:
     path: /usr/lib/tuned/stac-n/tuned.conf
@@ -36,6 +41,10 @@
 
       [script]
       script=${i:PROFILE_DIR}/script.sh
+
+      [scheduler]
+      group.onload=0:f:1:{{ onload_cp_cpu.stdout }}:onload_cp_serve.*$
+
     create: yes
 
 - name: create new tuned profile, create script.sh

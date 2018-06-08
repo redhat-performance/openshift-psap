@@ -1,8 +1,8 @@
 ---
-- name: get svt repo
-  git:
-    repo: https://{{ github_token }}@{{ svt_repo }}
-    dest: "{{ svt_dest }}"
+#- name: get svt repo
+#  git:
+#    repo: https://{{ github_token }}@{{ svt_repo }}
+#    dest: "{{ svt_dest }}"
 
 - name: prepare for building rpms
   yum:
@@ -33,17 +33,9 @@
     dest: "{{ rpmbuild_sources }}/{{ sysjitter_version }}"
 
 - name: get openonload
-  copy:
-    remote_src: true
-    src:  "{{ solarflare_pkg_prefix }}/{{ openonload_zip }}"
-    dest: "{{ rpmbuild_sources }}/{{ openonload_zip }}"
-
-- name: extract openonload
-  unarchive:
-    src:  "{{ rpmbuild_sources }}/{{ openonload_zip }}"
-    dest: "{{ rpmbuild_sources }}"
-    remote_src: yes
-
+  get_url:
+    url: "{{ onload_url }}/{{ openonload_tgz }}"
+    dest: "{{ rpmbuild_sources }}/{{ openonload_tgz }}"
 
 - name: create srpm of openonload
   shell: /usr/bin/rpmbuild -ts "{{ rpmbuild_sources }}/{{ openonload_tgz }}"
@@ -66,10 +58,47 @@
     /usr/bin/rpmbuild -vv --rebuild "{{ rpmbuild_srpms }}/{{ onload_srpm }}"  > /tmp/rpm.log 2>&1
   args:
     creates:
-      "{{ onload_rpms }}"
+      - "{{ rpmbuild_rpms }}/x86_64/{{ onload_userspace_rpm }}"
+      - "{{ rpmbuild_rpms }}/x86_64/{{ onload_kernelmod_rpm }}"
 
 - name: install rpm of openonload
   yum:
     name: "{{ rpmbuild_rpms }}/x86_64/{{ item }}"
     state: present
   with_items: "{{ onload_rpms }}"
+
+- name: unpack sysjitter
+  unarchive:
+    src: "{{ rpmbuild_sources }}/{{ sysjitter_version }}"
+    dest: "{{ rpmbuild_build }}"
+    remote_src: yes
+
+- name: unpack sfnettest
+  unarchive:
+    src: "{{ rpmbuild_sources }}/{{ sfnettest_version }}"
+    dest: "{{ rpmbuild_build }}"
+    remote_src: yes
+
+- name: build sysjitter
+  make:
+    chdir: "{{ rpmbuild_build }}/{{ sysjitter_sources }}"
+    target: all
+
+- name: build sfnettest
+  make:
+    chdir: "{{ rpmbuild_build }}/{{ sfnettest_sources }}"
+    target: all
+
+- name: install sysjitter
+  copy:
+    src: "{{ sysjitter_bin }}"
+    dest: /usr/bin/
+    mode: 0755
+    remote_src: yes
+
+- name: install sfnettest
+  copy:
+    src: "{{ sfnettest_bin }}"
+    dest: /usr/bin/
+    mode: 0755
+    remote_src: yes

@@ -11,12 +11,19 @@ onload_rpms:
        - openonload-201805-1.el7.x86_64.rpm
        - openonload-kmod-3.10.0-862.el7-201805-1.el7.x86_64.rpm
 
+onload_userspace_rpm: openonload-201805-1.el7.x86_64.rpm
+onload_kernelmod_rpm: openonload-kmod-3.10.0-862.el7-201805-1.el7.x86_64.rp
+
 solarflare_pkg_prefix: /root/svt-private/networking/synthetic/solarflare/pkg/201805
 
 onload_url:        http://www.openonload.org/download
 sfnettest_version: sfnettest-20131029.tgz
+sfnettest_sources: sfnettest-20131029/src
 sysjitter_version: sysjitter-1.4.tgz
+sysjitter_sources: sysjitter-1.4
 
+sysjitter_bin: "{{ rpmbuild_build }}/{{ sysjitter_sources }}/sysjitter"
+sfnettest_bin: "{{ rpmbuild_build }}/{{ sfnettest_sources }}/sfnt-pingpong"
 rpms_to_install:
   - rpm-build
   - redhat-rpm-config
@@ -45,6 +52,7 @@ rpms_to_install:
 rpmbuild_sources: /root/rpmbuild/SOURCES
 rpmbuild_srpms:   /root/rpmbuild/SRPMS
 rpmbuild_specs:   /root/rpmbuild/SPECS
+rpmbuild_build:   /root/rpmbuild/BUILD
 rpmbuild_rpms:    /root/rpmbuild/RPMS
 
 
