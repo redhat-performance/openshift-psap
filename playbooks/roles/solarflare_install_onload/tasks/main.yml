@@ -1,0 +1,120 @@
+---
+#- name: get svt repo
+#  git:
+#    repo: https://{{ github_token }}@{{ svt_repo }}
+#    dest: "{{ svt_dest }}"
+
+- name: prepare for building rpms
+  yum:
+    name: "{{ item }}"
+  with_items:
+    "{{ rpms_to_install }}"
+
+- name: create rpmbuild dir structure
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    "{{ rpmbuild_directories }}"
+
+- name: create rpmmacros
+  shell: echo '%_topdir %(echo $HOME)/rpmbuild' > /root/.rpmmacros
+  args:
+    creates: /root/rpmmacros
+
+- name: get sfnettest
+  get_url:
+    url:  "{{ onload_url }}/sfnettest/{{ sfnettest_version }}"
+    dest: "{{ rpmbuild_sources }}/{{ sfnettest_version }}"
+
+- name: get sysjitter
+  get_url:
+    url: "{{ onload_url }}/sysjitter/{{ sysjitter_version }}"
+    dest: "{{ rpmbuild_sources }}/{{ sysjitter_version }}"
+
+- name: get openonload
+  get_url:
+    url: "{{ onload_url }}/{{ openonload_tgz }}"
+    dest: "{{ rpmbuild_sources }}/{{ openonload_tgz }}"
+
+- name: create srpm of openonload
+  shell: /usr/bin/rpmbuild -ts "{{ rpmbuild_sources }}/{{ openonload_tgz }}"
+  args:
+     creates: "{{ rpmbuild_srpms }}/{{ onload_srpm }}"
+
+- name: install dependencies prior to building
+  shell: yum-builddep -y "{{ rpmbuild_srpms }}/{{ onload_srpm }}"
+
+- name: get the correct kernel-devel version from running kernel
+  shell: echo kernel-devel-`uname -r`
+  register: kernel_version
+
+- name: try to install the same kernel-devel version as running kernel
+  yum:
+    name: "{{ kernel_version.stdout }}"
+
+- name: create rpm of openonload
+  shell: |
+    /usr/bin/rpmbuild -vv --rebuild "{{ rpmbuild_srpms }}/{{ onload_srpm }}"  > /tmp/rpm.log 2>&1
+  args:
+    creates:
+      - "{{ rpmbuild_rpms }}/x86_64/{{ onload_userspace_rpm }}"
+      - "{{ rpmbuild_rpms }}/x86_64/{{ onload_kernelmod_rpm }}"
+
+- name: install rpm of openonload
+  yum:
+    name: "{{ rpmbuild_rpms }}/x86_64/{{ item }}"
+    state: present
+  with_items: "{{ onload_rpms }}"
+
+- name: unpack sysjitter
+  unarchive:
+    src: "{{ rpmbuild_sources }}/{{ sysjitter_version }}"
+    dest: "{{ rpmbuild_build }}"
+    remote_src: yes
+
+- name: unpack sfnettest
+  unarchive:
+    src: "{{ rpmbuild_sources }}/{{ sfnettest_version }}"
+    dest: "{{ rpmbuild_build }}"
+    remote_src: yes
+
+- name: build sysjitter
+  make:
+    chdir: "{{ rpmbuild_build }}/{{ sysjitter_sources }}"
+    target: all
+
+- name: build sfnettest
+  make:
+    chdir: "{{ rpmbuild_build }}/{{ sfnettest_sources }}"
+    target: all
+
+- name: install sysjitter
+  copy:
+    src: "{{ sysjitter_bin }}"
+    dest: /usr/bin/
+    mode: 0755
+    remote_src: yes
+
+- name: install sfnettest
+  copy:
+    src: "{{ sfnettest_bin }}"
+    dest: /usr/bin/
+    mode: 0755
+    remote_src: yes
+
+- name: get sfutils (get_url not working)
+  shell: curl {{ sfutils_url }} --output {{ rpmbuild_sources }}/{{ sfutils_zip }}
+  args:
+    creates: "{{ rpmbuild_sources }}/{{ sfutils_zip }}"
+
+- name: unpack sfutils
+  unarchive:
+    src:  "{{ rpmbuild_sources }}/{{ sfutils_zip }}"
+    dest: "{{ rpmbuild_rpms }}"
+    remote_src: yes
+
+- name: install sfutils
+  yum:
+    name: "{{ rpmbuild_rpms }}/{{ sfutils_rpm }}"
+    state: present

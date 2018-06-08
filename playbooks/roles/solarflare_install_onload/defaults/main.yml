@@ -1,0 +1,63 @@
+---
+openonload_zip: SF-109585-LS-27_OpenOnload_Release_Package.zip
+openonload_tgz: openonload-201805.tgz
+
+onload_srpm: openonload-201805-1.el7.src.rpm
+onload_spec: openonload.spec
+onload_rpms:
+       - openonload-201805-1.el7.x86_64.rpm
+       - openonload-kmod-3.10.0-862.el7-201805-1.el7.x86_64.rpm
+
+onload_userspace_rpm: openonload-201805-1.el7.x86_64.rpm
+onload_kernelmod_rpm: openonload-kmod-3.10.0-862.el7-201805-1.el7.x86_64.rp
+
+onload_url:        http://www.openonload.org/download
+sfnettest_version: sfnettest-20131029.tgz
+sfnettest_sources: sfnettest-20131029/src
+sysjitter_version: sysjitter-1.4.tgz
+sysjitter_sources: sysjitter-1.4
+
+sfutils_url: https://channel.solarflare.com/index.php/component/cognidox/\?file\=SF-107601-LS-54_Solarflare_Linux_Utilities_RPM_64bit.zip\&task\=download\&format\=raw\&id\=1945
+sfutils_zip: SF-107601-LS-54_Solarflare_Linux_Utilities_RPM_64bit.zip
+sfutils_rpm: sfutils-7.1.1.1000-1.x86_64.rpm
+
+sysjitter_bin: "{{ rpmbuild_build }}/{{ sysjitter_sources }}/sysjitter"
+sfnettest_bin: "{{ rpmbuild_build }}/{{ sfnettest_sources }}/sfnt-pingpong"
+rpms_to_install:
+  - rpm-build
+  - redhat-rpm-config
+  - yum-utils
+  - which
+  - gcc
+  - rpm-devel
+  - rpmlint
+  - make
+  - python
+  - bash
+  - coreutils
+  - diffutils
+  - patch
+  - rpmdevtools
+  - hostname
+  - libcgroup-tools
+  - pciutils
+  - yajl-devel
+  - sysstat
+  - libevent
+  - bc
+  - go-md2man
+  - tuna
+
+rpmbuild_sources: /root/rpmbuild/SOURCES
+rpmbuild_srpms:   /root/rpmbuild/SRPMS
+rpmbuild_specs:   /root/rpmbuild/SPECS
+rpmbuild_build:   /root/rpmbuild/BUILD
+rpmbuild_rpms:    /root/rpmbuild/RPMS
+
+
+rpmbuild_directories:
+    - /root/rpmbuild/BUILD
+    - /root/rpmbuild/RPMS
+    - /root/rpmbuild/SOURCES
+    - /root/rpmbuild/SPECS
+    - /root/rpmbuild/SRPMS

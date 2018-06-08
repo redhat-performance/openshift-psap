@@ -1,0 +1,7 @@
+---
+- hosts: nodes
+  remote_user: root
+  roles:
+    - role: solarflare_install_onload
+    - role: solarflare_discover_hw_topology
+    - role: stac_n_tuned_configuration
