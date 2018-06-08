@@ -1,6 +1,4 @@
 ---
-svt_repo:       github.com/openshift/svt-private.git
-svt_dest:       /root/svt-private
 openonload_zip: SF-109585-LS-27_OpenOnload_Release_Package.zip
 openonload_tgz: openonload-201805.tgz
 
@@ -12,8 +10,6 @@ onload_rpms:
 
 onload_userspace_rpm: openonload-201805-1.el7.x86_64.rpm
 onload_kernelmod_rpm: openonload-kmod-3.10.0-862.el7-201805-1.el7.x86_64.rp
-
-solarflare_pkg_prefix: /root/svt-private/networking/synthetic/solarflare/pkg/201805
 
 onload_url:        http://www.openonload.org/download
 sfnettest_version: sfnettest-20131029.tgz
