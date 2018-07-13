@@ -26,7 +26,7 @@ spec:
       resources:
         limits:
           nvidia.com/gpu: 1 # requesting 1 GPU
-          cpu: 1
+          cpu: "1000m"
           hugepages-2Mi: 32Gi
 
       volumeMounts:
@@ -34,6 +34,8 @@ spec:
           name: hugepage
         - mountPath: "/var/lib/pgsql/data"
           name: pgsql
+        - mountPath: "/dev/shm"
+          name: dshm
 
   volumes:
     - name: hugepage
@@ -42,4 +44,7 @@ spec:
     - name: pgsql
       hostPath:
         path: "/var/lib/pgsql/data"
+    - name: dshm
+      emptyDir:
+        medium: Memory
 
