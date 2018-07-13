@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pgstrom
+  namespace: nvidia 
+spec:
+  restartPolicy: OnFailure
+  serviceAccount: nvidia-deviceplugin
+  serivceAccountName: nvidia-deviceplugin
+  hostNetwork: true
+  containers:
+    - name: pgstrom
+      image: "quay.io/zvonkok/pgstrom"
+      env:
+        - name: POSTGRESQL_ADMIN_PASSWORD
+          value: postgres
+        - name: NVIDIA_VISIBLE_DEVICES
+          value: all
+        - name: NVIDIA_DRIVER_CAPABILITIES
+          value: "compute,utility"
+        - name: NVIDIA_REQUIRE_CUDA  
+          value: "cuda>=5.0"
+      securityContext:
+        privileged: true
+
+      resources:
+        limits:
+          nvidia.com/gpu: 1 # requesting 1 GPU
+          cpu: 1
+          hugepages-2Mi: 32Gi
+
+      volumeMounts:
+        - mountPath: /var/lib/hugetlbfs/global/pagesize-2MB
+          name: hugepage
+        - mountPath: "/var/lib/pgsql/data"
+          name: pgsql
+
+  volumes:
+    - name: hugepage
+      emptyDir:
+        medium: HugePages
+    - name: pgsql
+      hostPath:
+        path: "/var/lib/pgsql/data"
+
