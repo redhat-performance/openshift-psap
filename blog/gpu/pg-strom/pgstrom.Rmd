@@ -28,15 +28,22 @@ con <- dbConnect(drv,
 dbGetQuery(con, "SET pg_strom.enabled=on")
 dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 GROUP BY CAT")
 ```
+
+
+
+
+
 ```{r}
 dbGetQuery(con, "SET pg_strom.enabled=off")
 dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 GROUP BY CAT")
 ```
+
 ```{r}
+library("stringr")
 get_exec_time <- function(sql_output)
 {
 	# Execution time: 2803.671 ms
-	exectime <- tail(sql_output, n=1)[1][1,]
+	exectime <- str_extract(sql_output, "Execution time: [[:digit:]].* ms")
 	t0 <- unlist(strsplit(exectime, ':'))
 	# " 2803.671 ms"
 	t1 <- trimws(t0[2])
@@ -47,7 +54,7 @@ get_exec_time <- function(sql_output)
 }
 ```
 
-```{r, cache=TRUE}
+```{r}
 dbGetQuery(con, "SET pg_strom.enabled=on")
 
 ton <- list()
@@ -89,6 +96,7 @@ toff
 
 ```{r}
 library("ggplot2")
+library("ggthemes")
 library("reshape2")
 library("tidyr")
 library("dplyr")
@@ -110,8 +118,87 @@ dfm <- melt(df, id.vars = 1)
 ```
 
 
-```{r, fig.width=10}
-ggplot(dfm,aes(x = SQL_ID ,y = value)) + 
-    geom_bar(aes(fill = variable), stat = "identity", position = "dodge") +
-	geom_text(aes(label=value))
+```{r, fig.width=11}
+ggplot(dfm,aes(x = SQL_ID ,y = value, fill=variable)) + 
+    	geom_bar(stat = "identity", position = "dodge") +
+        geom_text(aes(label = value), position = position_dodge(0.9), vjust=1.3) +
+        ggtitle("Fig B: Natural Join Execution Time") + theme(plot.title = element_text(hjust = 0.5)) +
+	labs(y="Execution Time in [s] (lower is better)", x="Number of natural joins", fill="Compute Unit") +
+	scale_x_continuous(breaks = scales::pretty_breaks(n=9))
+```
+
+
+```{r}
+
+dbt3_ton <- c(
+	21575.539, #1
+	0.0, #2
+	69307.632, #3
+	595135.861, #4
+	136672.186, #5
+	24508.132, #6
+	0.0, #7
+	161291.089, #8
+	0.0, #9
+	191880.924, #10
+	12053.165, #11
+	75045.390, #12
+	0.0, #13
+	31402.416, #14
+	0.0, #15
+	41852.411, #16
+	0.0, #17
+	188773.987, #18
+	33335.154, #19 
+	105.719 #20
+)
+
+dbt3_toff <- c(
+	231230.161, #1
+	0.0, #2
+	236486.337, #3
+	604528.696, #4
+	237034.828, #5
+	50478.926, #6
+	0.0, #7
+	235615.954, #8
+	0.0, #9
+	213675.655, #10
+	49950.036, #11
+	299752.255, #12
+	0.0, #13
+	57405.178, #14
+	0.0, #15
+	54874.447, #16
+	0.0, #17
+	495533.467, #18
+	55076.868, #19 
+	0.209 #20
+)
+
+d1 <- as.data.frame(cbind(dbt3_ton))
+d0 <- as.data.frame(cbind(dbt3_toff))
+
+df <- data.frame(d1$dbt3_ton, d0$dbt3_toff)
+df <- df %>% mutate(SQL_ID = row_number())
+
+df <- df[c(3,1,2)]
+names(df) <- c('SQL_ID', '1 GPU', '1 CPU')
+
+df$`1 GPU` <- round(df$`1 GPU` / 1000.0, 2)
+df$`1 CPU` <- round(df$`1 CPU` / 1000.0, 2)
+
+dfm <- melt(df, id.vars = 1)
+
+```
+
+
+
+```{r, fig.width=14}
+ggplot(dfm,aes(x = SQL_ID ,y = value, fill=variable)) + 
+    	geom_bar(stat = "identity", position = "dodge") +
+        geom_text(aes(label = value), position = position_dodge(0.9), vjust=1.3) +
+        ggtitle("Fig C: dbt3 Execution Time") + theme(plot.title = element_text(hjust = 0.5)) +
+	labs(y="Execution Time in [s] (lower is better)", x="dbt3 test case", fill="Compute Unit") +
+	scale_x_continuous(breaks = scales::pretty_breaks(n=20))
 ```
