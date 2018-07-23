@@ -1,0 +1,204 @@
+---
+title: ' GPU Accelerated SQL queries with PostgreSQL & PG-Strom'
+output:
+  html_document:
+    df_print: paged
+---
+
+This notebook will run GPU accelerated SQL queries with PostgreSQL & PG-Strom 
+with the RPostgreSQL package for R. 
+
+```{r}
+require(RPostgreSQL)
+
+
+#ec2-34-216-128-133.us-west-2.compute.amazonaws.com
+
+drv <- dbDriver("PostgreSQL")
+
+con <- dbConnect(drv, 
+		 user="postgres", 
+		 password="postgres", 
+		 host="ec2-34-216-128-133.us-west-2.compute.amazonaws.com", 
+		 dbname="contrib_regression_pg_strom")
+```
+
+
+```{r}
+dbGetQuery(con, "SET pg_strom.enabled=on")
+dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 GROUP BY CAT")
+```
+
+
+
+
+
+```{r}
+dbGetQuery(con, "SET pg_strom.enabled=off")
+dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 GROUP BY CAT")
+```
+
+```{r}
+library("stringr")
+get_exec_time <- function(sql_output)
+{
+	# Execution time: 2803.671 ms
+	exectime <- str_extract(sql_output, "Execution time: [[:digit:]].* ms")
+	t0 <- unlist(strsplit(exectime, ':'))
+	# " 2803.671 ms"
+	t1 <- trimws(t0[2])
+	# "2803.671 ms"
+	t2 <- unlist(strsplit(t1, ' ')) # remove MS
+	# "2803.671"
+	as.double(t2[1])
+}
+```
+
+```{r}
+dbGetQuery(con, "SET pg_strom.enabled=on")
+
+ton <- list()
+
+ton <- c(ton, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 GROUP BY CAT")))
+ton <- c(ton, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 GROUP BY CAT")))
+ton <- c(ton, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 GROUP BY CAT")))
+ton <- c(ton, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 GROUP BY CAT")))
+ton <- c(ton, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 GROUP BY CAT")))
+ton <- c(ton, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 NATURAL JOIN t6 GROUP BY CAT")))
+ton <- c(ton, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 NATURAL JOIN t6 NATURAL JOIN t7 GROUP BY CAT")))
+ton <- c(ton, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 NATURAL JOIN t6 NATURAL JOIN t7 NATURAL JOIN t8 GROUP BY CAT")))
+ton <- c(ton, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 NATURAL JOIN t6 NATURAL JOIN t7 NATURAL JOIN t8 NATURAL JOIN t9 GROUP BY CAT")))
+
+ton
+
+```
+
+```{r,cache=TRUE}
+dbGetQuery(con, "SET pg_strom.enabled=off")
+
+toff <- list()
+
+toff <- c(toff, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 GROUP BY CAT")))
+toff <- c(toff, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 GROUP BY CAT")))
+toff <- c(toff, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 GROUP BY CAT")))
+toff <- c(toff, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 GROUP BY CAT")))
+toff <- c(toff, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 GROUP BY CAT")))
+toff <- c(toff, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 NATURAL JOIN t6 GROUP BY CAT")))
+toff <- c(toff, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 NATURAL JOIN t6 NATURAL JOIN t7 GROUP BY CAT")))
+toff <- c(toff, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 NATURAL JOIN t6 NATURAL JOIN t7 NATURAL JOIN t8 GROUP BY CAT")))
+toff <- c(toff, get_exec_time(dbGetQuery(con, "EXPLAIN ANALYZE SELECT cat, count(*), avg(ax) FROM t0 NATURAL JOIN t1 NATURAL JOIN t2 NATURAL JOIN t3 NATURAL JOIN t4 NATURAL JOIN t5 NATURAL JOIN t6 NATURAL JOIN t7 NATURAL JOIN t8 NATURAL JOIN t9 GROUP BY CAT")))
+
+toff
+
+```
+
+
+
+```{r}
+library("ggplot2")
+library("ggthemes")
+library("reshape2")
+library("tidyr")
+library("dplyr")
+
+df  <- as.data.frame(unlist(cbind(ton)))
+d1 <- as.data.frame(unlist(cbind(toff)))
+
+df <- data.frame(df$`unlist(cbind(ton))`, d1$`unlist(cbind(toff))`)
+df <- df %>% mutate(SQL_ID = row_number())
+df <- df[c(3,1,2)]
+names(df) <- c('SQL_ID', '1 GPU', '1 CPU')
+
+df$`1 GPU` <- round(df$`1 GPU` / 1000.0, 2)
+df$`1 CPU` <- round(df$`1 CPU` / 1000.0, 2)
+
+
+
+dfm <- melt(df, id.vars = 1)
+```
+
+
+```{r, fig.width=11}
+ggplot(dfm,aes(x = SQL_ID ,y = value, fill=variable)) + 
+    	geom_bar(stat = "identity", position = "dodge") +
+        geom_text(aes(label = value), position = position_dodge(0.9), vjust=1.3) +
+        ggtitle("Fig B: Natural Join Execution Time") + theme(plot.title = element_text(hjust = 0.5)) +
+	labs(y="Execution Time in [s] (lower is better)", x="Number of natural joins", fill="Compute Unit") +
+	scale_x_continuous(breaks = scales::pretty_breaks(n=9))
+```
+
+
+```{r}
+
+dbt3_ton <- c(
+	21575.539, #1
+	0.0, #2
+	69307.632, #3
+	595135.861, #4
+	136672.186, #5
+	24508.132, #6
+	0.0, #7
+	161291.089, #8
+	0.0, #9
+	191880.924, #10
+	12053.165, #11
+	75045.390, #12
+	0.0, #13
+	31402.416, #14
+	0.0, #15
+	41852.411, #16
+	0.0, #17
+	188773.987, #18
+	33335.154, #19 
+	105.719 #20
+)
+
+dbt3_toff <- c(
+	231230.161, #1
+	0.0, #2
+	236486.337, #3
+	604528.696, #4
+	237034.828, #5
+	50478.926, #6
+	0.0, #7
+	235615.954, #8
+	0.0, #9
+	213675.655, #10
+	49950.036, #11
+	299752.255, #12
+	0.0, #13
+	57405.178, #14
+	0.0, #15
+	54874.447, #16
+	0.0, #17
+	495533.467, #18
+	55076.868, #19 
+	0.209 #20
+)
+
+d1 <- as.data.frame(cbind(dbt3_ton))
+d0 <- as.data.frame(cbind(dbt3_toff))
+
+df <- data.frame(d1$dbt3_ton, d0$dbt3_toff)
+df <- df %>% mutate(SQL_ID = row_number())
+
+df <- df[c(3,1,2)]
+names(df) <- c('SQL_ID', '1 GPU', '1 CPU')
+
+df$`1 GPU` <- round(df$`1 GPU` / 1000.0, 2)
+df$`1 CPU` <- round(df$`1 CPU` / 1000.0, 2)
+
+dfm <- melt(df, id.vars = 1)
+
+```
+
+
+
+```{r, fig.width=14}
+ggplot(dfm,aes(x = SQL_ID ,y = value, fill=variable)) + 
+    	geom_bar(stat = "identity", position = "dodge") +
+        geom_text(aes(label = value), position = position_dodge(0.9), vjust=1.3) +
+        ggtitle("Fig C: dbt3 Execution Time") + theme(plot.title = element_text(hjust = 0.5)) +
+	labs(y="Execution Time in [s] (lower is better)", x="dbt3 test case", fill="Compute Unit") +
+	scale_x_continuous(breaks = scales::pretty_breaks(n=20))
+```

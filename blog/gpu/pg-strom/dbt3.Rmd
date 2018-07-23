@@ -1,0 +1,397 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library("stringr")
+source("~/git/openshift-psap/blog/gpu/pg-strom/dbt3.R", local=TRUE)
+
+require(RPostgreSQL)
+
+drv <- dbDriver("PostgreSQL")
+
+idx <- c(1,3,4,5,6,7,10,11,12,14,16,18,19,20)
+#idx<- c(1)
+
+con <- dbConnect(drv, 
+		 user="postgres", 
+		 password="postgres", 
+		 host="ec2-34-216-128-133.us-west-2.compute.amazonaws.com", 
+		 dbname="contrib_regression_pg_strom")
+
+dbGetQuery(con, "SET pg_strom.enabled=on")
+```
+
+
+```{r}
+i <- 1
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+```
+
+
+```{r}
+i <- 3
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+```
+
+
+```{r}
+i <- 4
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 5
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 6
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 8
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 10
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 11
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 12
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 14
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 16
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 18
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 19
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 20
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+```{r}
+dbGetQuery(con, "SET pg_strom.enabled=off")
+dbGetQuery(con, "SET pg_strom.enabled=off")
+dbGetQuery(con, "SET pg_strom.enabled=off")
+```
+
+
+
+```{r}
+i <- 1
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 3
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 4
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 5
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 6
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 8
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 10
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 11
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 12
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 14
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 16
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 18
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 19
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+
+```{r}
+i <- 20
+
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+s <- dbGetQuery(con, dbt3_sql[i])
+str_extract(s, "Execution time: [[:digit:]].* ms")
+
+```
+
+```{r}
+dbDisconnect(con)
+```
