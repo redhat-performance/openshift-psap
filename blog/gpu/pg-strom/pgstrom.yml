@@ -33,7 +33,7 @@ spec:
         - mountPath: /var/lib/hugetlbfs/global/pagesize-2MB
           name: hugepage
         - mountPath: "/var/lib/pgsql/data"
-          name: pgsql
+          name: pvol
         - mountPath: "/dev/shm"
           name: dshm
 
@@ -41,10 +41,9 @@ spec:
     - name: hugepage
       emptyDir:
         medium: HugePages
-    - name: pgsql
-      hostPath:
-        path: "/var/lib/pgsql/data"
     - name: dshm
       emptyDir:
         medium: Memory
-
+    - name: pvol
+      persistentVolumeClaim:
+        claimName: "claim1" 
