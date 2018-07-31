@@ -1,6 +1,6 @@
 ---
-- name: install nvidia driver on fast_nodes
-  hosts:  fast_nodes
+- name: install nvidia driver
+  hosts: "{{ hosts_to_apply }}"
   user: root
   roles:
     - nvidia-driver-install

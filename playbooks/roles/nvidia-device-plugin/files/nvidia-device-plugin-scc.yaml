@@ -35,6 +35,6 @@ seccompProfiles:
 supplementalGroups:
   type: RunAsAny
 users:
-- system:serviceaccount:nvidia:nvidia-deviceplugin
+- system:serviceaccount:nvidia-device-plugin:nvidia-deviceplugin
 volumes:
 - '*' 
