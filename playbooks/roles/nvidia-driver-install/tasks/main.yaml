@@ -12,12 +12,10 @@
 - name: install NVIDIA drivers
   yum:  name={{item}} state=present
   with_items:
-   - xorg-x11-drv-nvidia
-   - xorg-x11-drv-nvidia-devel
+   - nvidia-driver
+   - nvidia-driver-devel
+   - nvidia-driver-cuda
    - nvidia-modprobe
-
-- name: remove nouveau
-  modprobe: name=nouveau state=absent
 
 - name: load NVIDIA and unified memory kernel modules
   shell: nvidia-modprobe && nvidia-modprobe -u
