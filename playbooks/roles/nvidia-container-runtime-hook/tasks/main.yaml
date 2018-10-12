@@ -25,8 +25,8 @@
   ignore_errors: true
 
 - name: update SELinux type on nvidia device files
-    shell: chcon -t container_file_t /dev/nvidia*
+  shell: chcon -t container_file_t /dev/nvidia*
 
 - name: e2e test nvidia-container-runtime-hook integration
-    shell: docker run -i --rm docker.io/mirrorgooglecontainers/cuda-vector-add:v0.1
-      ignore_errors: true
+  shell: docker run -i --rm docker.io/mirrorgooglecontainers/cuda-vector-add:v0.1
+  ignore_errors: true

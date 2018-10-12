@@ -1,43 +1,59 @@
 ---
-- name: copy create-nvidia-namespace.yaml up to master
-  copy:
-    src: create-nvidia-namespace.yaml
-    dest: /tmp/create-nvidia-namespace.yaml
-  delegate_to: "{{ master_hostname }}"
+- name: check for nvidia project
+  command: oc get project nvidia-device-plugin
+  ignore_errors: true
+  register: nvidia_project_status
 
-- name: create nvidia namespace
-  shell: oc create -f /tmp/create-nvidia-namespace.yaml
+- name: create nvidia project when it didn't already exist
+  command: oc adm new-project nvidia-device-plugin
+  when: nvidia_project_status is failed
+
+- name: check if nodeselector is present
+  command: oc get project nvidia-device-plugin -o yaml
+  register: nvidia_project_yaml
+
+- name: patch nvidia project to set empty nodeselector
+  command: oc patch namespace nvidia-device-plugin -p '{"metadata":{"annotations":{"openshift.io/node-selector":""}}}'
+  when: "'openshift.io/node-selector: \"\"' not in nvidia_project_yaml.stdout"
+
+- name: check for nvidia device plugin service account
+  command: oc get serviceaccount nvidia-deviceplugin -n nvidia-device-plugin
+  register: deviceplugin_out
+  ignore_errors: true
 
 - name: create serviceaccount for nvidia deviceplugin
-  shell: oc create serviceaccount -n nvidia nvidia-deviceplugin
+  command: oc create serviceaccount -n nvidia-device-plugin nvidia-deviceplugin
+  when: deviceplugin_out is failed
 
-- name: copy device-plugin yaml for use by oc
+- name: copy device plugin scc yaml to host
   copy:
-    src: nvidia-device-plugin-centos.yml
-    dest: /tmp/nvidia-device-plugin-centos.yml
- 
-- name: copy scc yaml up to master
-  copy:
-    src: nvidia-deviceplugin-scc.yaml
-    dest: /tmp/nvidia-deviceplugin-scc.yaml
+    src: nvidia-device-plugin-scc.yaml
+    dest: /tmp/nvidia-device-plugin-scc.yaml
+
+- name: check for nvidia device plugin scc
+  command: oc get scc nvidia-deviceplugin
+  register: deviceplugin_scc_out
+  ignore_errors: true
 
 - name: load nvidia device plugin scc
-  shell: oc create -f /tmp/nvidia-deviceplugin-scc.yaml
+  command: oc create -f /tmp/nvidia-device-plugin-scc.yaml -n nvidia-device-plugin
+  when: deviceplugin_scc_out is failed
 
+# need to supply an env var called 'gpu_hosts' that refers to the group of hosts/nodes where we should apply the gpu label
 - name: label fast_nodes with nvidia gpu=true
-  shell: oc label node {{ hostvars[item].inventory_hostname }} nvidia.com/gpu=true --overwrite
-  with_items: '{{groups.fast_nodes}}'
+  command: oc label node {{ hostvars[item].inventory_hostname }} openshift.com/gpu-accelerator=true --overwrite
+  with_items: '{{ groups[gpu_hosts] }}'
 
-- name: enable DevicePlugins feature-gate (only necessary in 1.8 and 1.9)
-  blockinfile:
-    dest: /etc/origin/node/node-config.yaml
-    backup: yes
-    state: present
-    insertafter: "kubeletArguments:
-    block: |2
-        feature-gates:
-        - DevicePlugins=true
-  when: inventory_hostname in groups['fast_nodes']
+- name: copy device plugin daemonset definition to host
+  copy:
+    src: nvidia-device-plugin-daemonset.yaml
+    dest: /tmp/nvidia-device-plugin-daemonset.yaml
+
+- name: check for nvidia device plugin daemonset
+  command: oc get daemonset -n nvidia-device-plugin nvidia-deviceplugin-daemonset
+  register: daemonset_out
+  ignore_errors: true
 
 - name: install the NVIDIA kubernetes device-plugin (CentOS base image)
-  shell:  oc create -f /tmp/nvidia-device-plugin-centos.yml
+  command: oc create -f /tmp/nvidia-device-plugin-daemonset.yaml -n nvidia-device-plugin
+  when: daemonset_out is failed

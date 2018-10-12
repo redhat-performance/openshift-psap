@@ -1,6 +1,6 @@
 ---
 - name: deploy NVIDIA device-plugin daemonset
-  hosts:  master
+  hosts: "{{ hosts_to_apply }}"
   user: root
   roles:
     - nvidia-device-plugin
