@@ -5,8 +5,6 @@ metadata:
   namespace: nvidia 
 spec:
   restartPolicy: OnFailure
-  serviceAccount: nvidia-deviceplugin
-  serivceAccountName: nvidia-deviceplugin
   containers:
     - name: cuda-vector-add
       image: "docker.io/mirrorgooglecontainers/cuda-vector-add:v0.1"
@@ -18,5 +16,9 @@ spec:
         - name: NVIDIA_REQUIRE_CUDA  
           value: "cuda>=5.0"
       securityContext:
-        privileged: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: ["ALL"]
+        seLinuxOptions:
+          type: nvidia_container_t
 
